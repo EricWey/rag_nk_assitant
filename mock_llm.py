@@ -73,7 +73,9 @@ class MockDeepSeek(LLM):
         user_content = ""
         for msg in messages:
             if msg.role == "user":
-                user_content += msg.content + "\n"
+                # 确保content是字符串类型
+                content_str = str(msg.content)
+                user_content += content_str + "\n"
         
         response_text = self._generate_mock_response(user_content, "chat")
         
@@ -83,6 +85,19 @@ class MockDeepSeek(LLM):
             finish_reason="stop"
         )
     
+    def predict(self, prompt: str, **kwargs) -> str:
+        """
+        模拟predict方法
+        与真实DeepSeek接口一致
+        """
+        self._call_count += 1
+        logger.info(f"[MOCK] 预测生成 - 调用次数: {self._call_count}")
+        
+        # 确保prompt是字符串类型
+        prompt_str = str(prompt)
+        response_text = self._generate_mock_response(prompt_str, "predict")
+        return response_text
+    
     def complete(self, prompt: str, **kwargs) -> CompletionResponse:
         """
         模拟complete方法
@@ -91,7 +106,9 @@ class MockDeepSeek(LLM):
         self._call_count += 1
         logger.info(f"[MOCK] 完整文本生成 - 调用次数: {self._call_count}")
         
-        response_text = self._generate_mock_response(prompt, "complete")
+        # 确保prompt是字符串类型
+        prompt_str = str(prompt)
+        response_text = self._generate_mock_response(prompt_str, "complete")
         return CompletionResponse(text=response_text)
     
     def stream_chat(self, messages: List[ChatMessage], **kwargs):
@@ -127,10 +144,12 @@ class MockDeepSeek(LLM):
         生成模拟响应
         根据输入内容返回智能化的预设响应
         """
-        prompt_lower = prompt.lower()
-        
+        # 确保prompt是字符串类型
+        prompt_str = str(prompt)
+        prompt_lower = prompt_str.lower()
+
         # 测试文档主要内容
-        if "主要内容" in prompt or "summary" in prompt_lower:
+        if "主要内容" in prompt_str or "summary" in prompt_lower or "总结" in prompt_str:
             return """根据文档内容，这是一个关于技术文档的示例。文档包含了多个章节，涵盖了基础知识、实践应用和高级特性。
 
 主要内容包括：
@@ -141,24 +160,24 @@ class MockDeepSeek(LLM):
 5. 常见问题解答
 
 该文档旨在帮助开发者快速理解和使用相关技术栈，提供了从入门到精通的完整指南。"""
-        
+
         # 测试代码相关问题
-        elif "代码" in prompt or "code" in prompt_lower or "函数" in prompt:
+        elif "代码" in prompt_str or "code" in prompt_lower or "函数" in prompt_str:
             return """关于代码相关的提问，这里提供一个示例响应：
 
 ```python
 def example_function(data):
-    \"\"\"
+    '''
     示例函数
-    \"\"\"
+    '''
     result = process_data(data)
     return result
 ```
 
 这段代码展示了基本的数据处理流程，具体实现需要根据实际需求进行调整。"""
-        
+
         # 测试错误处理
-        elif "错误" in prompt or "error" in prompt_lower or "异常" in prompt:
+        elif "错误" in prompt_str or "error" in prompt_lower or "异常" in prompt_str:
             return """关于错误处理，建议采用以下最佳实践：
 
 1. 使用try-except捕获异常
@@ -168,9 +187,9 @@ def example_function(data):
 5. 设置超时和熔断保护
 
 这样可以提高系统的健壮性和可维护性。"""
-        
+
         # 测试性能相关
-        elif "性能" in prompt or "performance" in prompt_lower or "优化" in prompt:
+        elif "性能" in prompt_str or "performance" in prompt_lower or "优化" in prompt_str:
             return """性能优化建议：
 
 1. 数据库优化：使用索引、优化查询语句
@@ -180,12 +199,12 @@ def example_function(data):
 5. 资源管理：合理设置连接池大小
 
 通过这些优化可以显著提升系统性能。"""
-        
+
         # 默认响应
         else:
             return f"""感谢您的提问！这是一个模拟的DeepSeek响应。
 
-您的问题是：{prompt[:100]}...
+您的问题是：{prompt_str[:100]}...
 
 基于RAG检索到的文档内容，我为您提供了相关的解答。在实际生产环境中，这个响应将由DeepSeek API根据检索到的上下文实时生成。
 
