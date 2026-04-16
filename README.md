@@ -191,31 +191,6 @@ embed_model = HuggingFaceEmbedding(
 )
 ```
 
-## 常见问题
-
-### Q: 如何获取 DeepSeek API Key？
-A: 访问 https://platform.deepseek.com/ 注册并获取 API Key。
-
-### Q: 首次运行很慢？
-A: 需要下载嵌入模型，约 500MB，请耐心等待。
-
-### Q: 如何提高回答质量？
-A: 提供更准确的知识库文档，提问时明确具体。
-
-### Q: 支持多语言吗？
-A: 主要支持中文，使用专门的中文嵌入模型。
-
-## 开发指南
-
-### 添加新的响应类型
-编辑 `mock_llm.py` 中的 `_generate_mock_response` 方法。
-
-### 自定义界面样式
-编辑 `web_app.py` 中的 CSS 样式部分。
-
-### 修改检索策略
-调整 `similarity_top_k` 参数和相关配置。
-
 ## 部署
 
 ### Streamlit Cloud
@@ -230,14 +205,3 @@ docker build -t rag-assistant .
 docker run -p 8501:8501 rag-assistant
 ```
 
-## 许可证
-
-MIT License
-
-## 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
----
-
-享受您的智能问答体验！🚀
